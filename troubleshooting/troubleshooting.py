@@ -314,9 +314,11 @@ def find_executable(*args) -> list:
         output.append(
             cmd_output(
                 name,
-                real_executable_path
-                if real_executable_path is not None
-                else executable_path,
+                (
+                    real_executable_path
+                    if real_executable_path is not None
+                    else executable_path
+                ),
                 True if executable_path is None else False,
             )
         )

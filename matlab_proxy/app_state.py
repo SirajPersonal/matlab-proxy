@@ -739,9 +739,9 @@ class AppState:
             logger.info(
                 f"Writing MATLAB process logs to: {matlab_env['MW_DIAGNOSTIC_DEST']}"
             )
-            matlab_env[
-                "MW_DIAGNOSTIC_SPEC"
-            ] = "connector::http::server=all;connector::lifecycle=all"
+            matlab_env["MW_DIAGNOSTIC_SPEC"] = (
+                "connector::http::server=all;connector::lifecycle=all"
+            )
 
         # TODO Introduce a warmup flag to enable this?
         # matlab_env["CONNECTOR_CONFIGURABLE_WARMUP_TASKS"] = "warmup_hgweb"
@@ -1041,12 +1041,17 @@ class AppState:
         self.processes["matlab"] = matlab
 
         # check if the user has provided any code or not
-        if len(os.environ.get(mwi_env.get_env_name_custom_matlab_code(),"")) > 0:
+        if len(os.environ.get(mwi_env.get_env_name_custom_matlab_code(), "")) > 0:
             folderpath = Path(get_tempdir())
-            filepath = folderpath / "mw_custom_matlab_code_output" / str(matlab.pid) / "MWI_CUSTOM_MATLAB_CODE_OUTPUT.txt"
+            filepath = (
+                folderpath
+                / "mw_custom_matlab_code_output"
+                / str(matlab.pid)
+                / "MWI_CUSTOM_MATLAB_CODE_OUTPUT.txt"
+            )
             write_access = True
 
-            #creating a folder in temp directory to check whether we have write access or not
+            # creating a folder in temp directory to check whether we have write access or not
             try:
                 temp_check_folder = folderpath / "mwi_temp_check_folder"
                 temp_check_folder.mkdir(parents=False, exist_ok=True)
@@ -1055,16 +1060,26 @@ class AppState:
                 write_access = False
             if write_access:
                 # logger.info(f"Once MATLAB starts the output for the provided MATLAB code will be available at: {filepath}, if no exception occurs.")
-                logger.info(util.prettify(
-                    boundary_filler='*',
-                    text_arr=[f"Once MATLAB starts the output for the provided MATLAB code will be available at:",f"{filepath}"]
-                ))
+                logger.info(
+                    util.prettify(
+                        boundary_filler="*",
+                        text_arr=[
+                            f"Once MATLAB starts the output for the provided MATLAB code will be available at:",
+                            f"{filepath}",
+                        ],
+                    )
+                )
             else:
                 # logger.info(f"Access denied: The code cannot be executed due to insufficient permissions at: {folderpath}")
-                logger.info(util.prettify(
-                    boundary_filler='*',
-                    text_arr=[f"Access denied: The code cannot be executed due to insufficient permissions at:",f"{folderpath}"]
-                ))
+                logger.info(
+                    util.prettify(
+                        boundary_filler="*",
+                        text_arr=[
+                            f"Access denied: The code cannot be executed due to insufficient permissions at:",
+                            f"{folderpath}",
+                        ],
+                    )
+                )
 
         loop = util.get_event_loop()
         # Start all tasks relevant to MATLAB process
@@ -1188,10 +1203,17 @@ class AppState:
         # In posix systems, variable matlab is an instance of asyncio.subprocess.Process()
         # In windows systems, variable matlab is an instance of psutil.Process()
         matlab = self.processes["matlab"]
-        
-        matlab_process_id  = matlab.pid if matlab is not None else -1
-        if  matlab_process_id != -1 and len(os.environ.get(mwi_env.get_env_name_custom_matlab_code(),"")) > 0:
-            folderPath = Path(get_tempdir()) / "mw_custom_matlab_code_output" / str(matlab_process_id)
+
+        matlab_process_id = matlab.pid if matlab is not None else -1
+        if (
+            matlab_process_id != -1
+            and len(os.environ.get(mwi_env.get_env_name_custom_matlab_code(), "")) > 0
+        ):
+            folderPath = (
+                Path(get_tempdir())
+                / "mw_custom_matlab_code_output"
+                / str(matlab_process_id)
+            )
             try:
                 shutil.rmtree(folderPath, ignore_errors=False)
                 logger.info(f"Deleting:{folderPath}")
