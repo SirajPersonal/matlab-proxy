@@ -1,5 +1,6 @@
 # Copyright 2023 The MathWorks, Inc.
 
+from abc import abstractclassmethod
 import json
 import os
 from dataclasses import dataclass
@@ -580,3 +581,28 @@ async def test_start_matlab_without_xvfb(app_state_fixture, mocker):
     assert app_state_fixture.processes["xvfb"] is None
     # Check if Matlab started
     assert app_state_fixture.processes["matlab"] is mock_matlab
+
+
+@pytest.mark.parametrize("is_function_called", [True, False])
+def test_add_user_code_output_file_path_to_session_files(
+    app_state_fixture, is_function_called
+):
+    """Test to check add_user_code_output_file_path_to_session_files()
+
+    Args:
+        app_state_fixture (AppState): Object of AppState class with defaults set
+    """
+    if is_function_called == True:
+        app_state_fixture.add_user_code_output_file_path_to_session_files()
+        expected_path = Path(
+            app_state_fixture.settings["mwi_logs_root_dir"]
+            / str(app_state_fixture.settings["app_port"])
+            / "user_code_output.txt"
+        )
+    else:
+        expected_path = None
+
+    assert (
+        app_state_fixture.mwi_server_session_files.get("user_code_output_file")
+        == expected_path
+    )
