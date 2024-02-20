@@ -1,7 +1,5 @@
 # Copyright 2020-2024 The MathWorks, Inc.
 
-from pathlib import Path
-import shutil
 import asyncio
 import contextlib
 import json
@@ -588,10 +586,7 @@ class AppState:
             logger.debug(f"matlab_session_files:{self.matlab_session_files}")
 
             # check if the user has provided any code or not
-            if (
-                "has_custom_code_to_execute" in self.settings
-                and self.settings["has_custom_code_to_execute"]
-            ):
+            if self.settings.get("has_custom_code_to_execute"):
                 # Keep a reference to the user code output file in the matlab_session_files for cleanup
                 user_code_output_file = mwi_logs_dir / USER_CODE_OUTPUT_FILE_NAME
                 self.matlab_session_files["user_code_output_file"] = (
@@ -636,19 +631,6 @@ class AppState:
                 ],
             )
         )
-
-    def add_user_code_output_file_path_to_session_files(self):
-        mwi_logs_root_dir = self.settings["mwi_logs_root_dir"]
-        # Use the app_port number to identify the server as that is user visible
-        mwi_logs_dir = mwi_logs_root_dir / str(self.settings["app_port"])
-        # Ensure the directory exists where the output file will be stored
-        mwi_logs_dir.mkdir(parents=True, exist_ok=True)
-
-        # Define the path for the new empty text file to store user code output
-        user_code_output_file = mwi_logs_dir / "user_code_output.txt"
-
-        # Keep a reference to the user code output file in the session files, if needed
-        self.mwi_server_session_files["user_code_output_file"] = user_code_output_file
 
     def clean_up_mwi_server_session(self):
         # Clean up mwi_server_session_files
